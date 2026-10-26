@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
   <title>X管家 ‧ 影音雲端展示中心</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -803,7 +804,7 @@
         <button class="modal-close-btn" onclick="closePlayerModal()">✕</button>
       </div>
       <div class="modal-player-wrap">
-        <video id="modal-video-element" controls playsinline preload="auto"></video>
+        <video id="modal-video-element" controls playsinline preload="auto" referrerpolicy="no-referrer"></video>
       </div>
       <div class="modal-body">
         <div class="card-author-row">
@@ -819,7 +820,8 @@
         <p id="modal-video-text" style="font-size: 15px; line-height: 1.6;"></p>
         <div class="card-tags" id="modal-video-tags"></div>
         <div style="display: flex; gap: 12px; margin-top: 12px;">
-          <a id="modal-download-btn" href="#" target="_blank" class="btn btn-primary" download>
+          <a id="modal-direct-play-btn" href="#" target="_blank" rel="noreferrer" class="btn btn-outline"><span>▶️ 另開直接播放</span></a>
+          <a id="modal-download-btn" href="#" target="_blank" rel="noreferrer" class="btn btn-primary" download>
             <span>⬇️ 下載 MP4 原檔</span>
           </a>
           <a id="modal-tweet-btn" href="#" target="_blank" class="btn btn-outline">
@@ -984,7 +986,7 @@
           <div class="card-media">
             <span class="card-category-tag">${v.category || '精選'}</span>
             <span class="card-duration-tag">⏱️ ${durationText}</span>
-            <img src="${posterSrc}" alt="${v.author || '影片封面'}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'">
+            <img src="${posterSrc}" alt="${v.author || '影片封面'}" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'">
             <div class="card-play-btn" onclick="openPlayer('${v.id}')" title="即時播放">
               <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             </div>
@@ -1045,6 +1047,8 @@
       document.getElementById('modal-video-date').textContent = v.addedAt ? new Date(v.addedAt).toLocaleString('zh-TW') : '';
       document.getElementById('modal-video-text').textContent = v.text || '';
       document.getElementById('modal-download-btn').href = v.videoUrl || '#';
+      const directBtn = document.getElementById('modal-direct-play-btn');
+      if (directBtn) directBtn.href = v.videoUrl || '#';
       document.getElementById('modal-tweet-btn').href = v.tweetUrl || '#';
 
       const tagsContainer = document.getElementById('modal-video-tags');
