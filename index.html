@@ -907,9 +907,19 @@
     async function init() {
       const deletedIds = getDeletedIds();
       try {
-        const res = await fetch(`data.json?t=${Date.now()}`);
-        if (res.ok) {
-          const rawList = await res.json();
+        let rawList = null;
+        // 優先直連 GitHub Raw 零秒同步最新新增影片（完全繞過 GitHub Pages CDN 60秒快取延遲）
+        try {
+          const rawRes = await fetch(`https://raw.githubusercontent.com/${GH_REPO}/main/data.json?t=${Date.now()}`);
+          if (rawRes.ok) rawList = await rawRes.json();
+        } catch (_) {}
+
+        if (!rawList) {
+          const res = await fetch(`data.json?t=${Date.now()}`);
+          if (res.ok) rawList = await res.json();
+        }
+
+        if (rawList) {
           videos = rawList.filter(v => !deletedIds.includes(v.id));
         }
       } catch (e) {
