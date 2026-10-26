@@ -544,7 +544,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(15, 23, 42, 0.8);
+      background-color: rgba(15, 23, 42, 0.85);
       display: none;
       align-items: center;
       justify-content: center;
@@ -620,12 +620,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     .modal-player-wrap video {
       width: 100%;
       height: 100%;
       outline: none;
+      object-fit: contain;
     }
 
     .modal-body {
@@ -761,7 +763,7 @@
       <div class="hero-header">
         <div class="hero-title">
           <h1>⚡ X管家 ‧ 線上影音雲端展示中心</h1>
-          <p>全天候 24/7 獨立運作！只要在 LINE 傳送 X 影片連結，系統即刻解析、自動分類、雲端上架，支援隨時線上即時播放與一鍵刪除。</p>
+          <p>全天候 24/7 獨立運作！只要在 LINE 傳送 X 影片連結，系統即刻解析、自動分類、雲端上架，支援隨時線上即時播放與永久刪除。</p>
         </div>
         <div class="stats-bar">
           <div class="stat-pill">
@@ -801,7 +803,7 @@
         <button class="modal-close-btn" onclick="closePlayerModal()">✕</button>
       </div>
       <div class="modal-player-wrap">
-        <video id="modal-video-element" controls autoplay playsinline preload="auto"></video>
+        <video id="modal-video-element" controls playsinline preload="auto"></video>
       </div>
       <div class="modal-body">
         <div class="card-author-row">
@@ -858,24 +860,23 @@
   </footer>
 
   <script>
-    // 預設資料來源（優先讀取 localStorage，若無則讀取 data.json）
-    const STORAGE_KEY = 'X_BUTLER_VIDEOS_DATA';
+    const GH_REPO = 'huangyihong0327-bot/X-butler';
+        const DELETED_CACHE_KEY = 'X_BUTLER_DELETED_IDS';
+
     let videos = [];
     let currentCategory = '全部';
     let searchQuery = '';
 
-    // 自動分類引擎
     function detectCategory(text, author, handle) {
       const full = (text + ' ' + author + ' ' + handle).toLowerCase();
       if (/打屁股|spanking|處罰|惩处|sp|屁股|罚/.test(full)) return '調教懲處';
-      if (/小狗|主仆|主僕|主人|奴|服务|服侍|惩罚/.test(full)) return '主奴情趣';
+      if (/小狗|主仆|主僕|主人|奴|服务|服侍|惩罚|熊主/.test(full)) return '主奴情趣';
       if (/双头|雙頭|盲盒|开箱|開箱|玩具|情趣/.test(full)) return '情趣開箱';
       if (/gangbang|chudai|多人|多人派对|多人派對|群交|群/.test(full)) return '多人派對';
       if (/肌肉|帅哥|帥哥|男模|体格|壯|猛男/.test(full)) return '肌肉型男';
       return '精選收錄';
     }
 
-    // 智能標籤生成器
     function extractTags(text, category) {
       const tags = [category];
       const matchTags = text.match(/#[\w\u4e00-\u9fa5]+/g);
@@ -885,37 +886,36 @@
       return [...new Set(tags)].slice(0, 4);
     }
 
-    // 初始化載入
+    function getDeletedIds() {
+      try {
+        return JSON.parse(localStorage.getItem(DELETED_CACHE_KEY) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function markDeletedId(id) {
+      const list = getDeletedIds();
+      if (!list.includes(id)) {
+        list.push(id);
+        localStorage.setItem(DELETED_CACHE_KEY, JSON.stringify(list));
+      }
+    }
+
     async function init() {
-      const local = localStorage.getItem(STORAGE_KEY);
-      if (local) {
-        try {
-          videos = JSON.parse(local);
-        } catch (e) {
-          console.error(e);
+      const deletedIds = getDeletedIds();
+      try {
+        const res = await fetch(`data.json?t=${Date.now()}`);
+        if (res.ok) {
+          const rawList = await res.json();
+          videos = rawList.filter(v => !deletedIds.includes(v.id));
         }
+      } catch (e) {
+        console.error('無法載入 data.json:', e);
       }
-
-      if (!videos || videos.length === 0) {
-        try {
-          const res = await fetch('data.json');
-          if (res.ok) {
-            videos = await res.json();
-            saveVideos();
-          }
-        } catch (e) {
-          console.warn('無法載入 data.json:', e);
-        }
-      }
-
       renderUI();
     }
 
-    function saveVideos() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
-    }
-
-    // 渲染分類與計數
     function renderCategories() {
       const categoryMap = { '全部': videos.length };
       videos.forEach(v => {
@@ -941,7 +941,6 @@
       document.getElementById('category-count').textContent = Object.keys(categoryMap).length - 1;
     }
 
-    // 渲染卡片
     function renderCards() {
       const grid = document.getElementById('video-grid');
       grid.innerHTML = '';
@@ -1015,7 +1014,7 @@
                 <span>⬇️ 下載</span>
               </a>
             </div>
-            <button class="btn btn-danger" onclick="deleteVideo('${v.id}')" title="從展示中心移除此影片">
+            <button class="btn btn-danger" onclick="deleteVideo('${v.id}')" title="永久刪除此影片">
               <span>🗑️ 刪除</span>
             </button>
           </div>
@@ -1035,7 +1034,6 @@
       renderCards();
     }
 
-    // 播放器彈窗控制
     function openPlayer(videoId) {
       const v = videos.find(item => item.id === videoId);
       if (!v) return;
@@ -1056,7 +1054,7 @@
       videoElem.src = v.videoUrl;
       videoElem.poster = v.poster || '';
       videoElem.load();
-      videoElem.play().catch(e => console.log('Autoplay prevented:', e));
+      videoElem.play().catch(e => console.log('Autoplay hint:', e));
 
       document.getElementById('player-modal').classList.add('active');
     }
@@ -1069,16 +1067,47 @@
       videoElem.src = '';
     }
 
-    // 刪除影片功能
-    function deleteVideo(videoId) {
-      if (confirm('確定要從展示中心刪除這部影片嗎？')) {
-        videos = videos.filter(v => v.id !== videoId);
-        saveVideos();
-        renderUI();
+    async function deleteVideo(videoId) {
+      if (!confirm('確定要永久刪除這部影片嗎？刪除後刷新也不會再出現。')) {
+        return;
+      }
+
+      markDeletedId(videoId);
+      videos = videos.filter(v => v.id !== videoId);
+      renderUI();
+
+      try {
+        const getRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/data.json`, {
+          headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          const sha = fileData.sha;
+          const remoteList = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+          const updatedList = remoteList.filter(v => v.id !== videoId);
+
+          const newContent = btoa(unescape(encodeURIComponent(JSON.stringify(updatedList, null, 2))));
+          await fetch(`https://api.github.com/repos/${GH_REPO}/contents/data.json`, {
+            method: 'PUT',
+            headers: {
+                            'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify({
+              message: `chore: permanently delete video ${videoId}`,
+              content: newContent,
+              sha: sha
+            })
+          });
+          console.log(`☁️ 雲端資料庫已永久同步刪除: ${videoId}`);
+        }
+      } catch (err) {
+        console.warn('雲端刪除同步提示:', err.message);
       }
     }
 
-    // 手動新增 Modal 控制
     function openAddModal() {
       document.getElementById('add-modal').classList.add('active');
       document.getElementById('manual-url-input').focus();
@@ -1108,7 +1137,6 @@
       btn.innerHTML = '<span>⏳ 穿透解析中...</span>';
 
       try {
-        // 使用 FxTwitter 公開穿透 API
         const res = await fetch(`https://api.fxtwitter.com/status/${tweetId}`);
         if (!res.ok) throw new Error('解析服務未回應');
         const data = await res.json();
@@ -1141,13 +1169,35 @@
           addedAt: new Date().toISOString()
         };
 
-        // 避免重複
         videos = [newEntry, ...videos.filter(v => v.id !== tweetId)];
-        saveVideos();
         closeAddModal();
         currentCategory = '全部';
         renderUI();
-        alert('🎉 影片解析成功！已自動分類並上架至展示中心！');
+
+        const getRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/data.json`, {
+          headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          const remoteList = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+          const updated = [newEntry, ...remoteList.filter(v => v.id !== tweetId)];
+          const newContent = btoa(unescape(encodeURIComponent(JSON.stringify(updated, null, 2))));
+          await fetch(`https://api.github.com/repos/${GH_REPO}/contents/data.json`, {
+            method: 'PUT',
+            headers: {
+                            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: `feat: manual add video ${tweetId}`,
+              content: newContent,
+              sha: fileData.sha
+            })
+          });
+        }
+
+        alert('🎉 影片解析成功！已自動分類並同步上架！');
 
       } catch (err) {
         alert(`❌ 解析失敗：${err.message}`);
@@ -1157,7 +1207,6 @@
       }
     }
 
-    // 啟動
     init();
   </script>
 </body>
