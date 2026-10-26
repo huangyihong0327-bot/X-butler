@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X管家 ‧ 影音雲端展示中心</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #78716C;
+      --secondary: #92400E;
+      --accent: #D97706;
+      --background: #FFFBEB;
+      --surface: #FFFFFF;
+      --foreground: #0F172A;
+      --border-color: #0F172A;
+      --radius-base: 6px;
+      --border-width: 3px;
+      --shadow-offset: 5px;
+      --shadow: 5px 5px 0px var(--border-color);
+      --shadow-hover: 7px 7px 0px var(--border-color);
+      --font-heading: 'Space Grotesk', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .brand-logo, .tab-btn, .action-btn {
+      font-family: var(--font-heading);
+      letter-spacing: -0.02em;
+    }
+
+    /* 頂部導航列 */
+    header {
+      background-color: var(--surface);
+      border-bottom: var(--border-width) solid var(--border-color);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--foreground);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      background-color: var(--accent);
+      color: var(--surface);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: 2px 2px 0px var(--border-color);
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* 核心 Neubrutalism 按鈕 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background-color: var(--surface);
+      color: var(--foreground);
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 9px 18px;
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+    .btn-primary:hover {
+      background-color: #B45309;
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: #FFFFFF;
+    }
+
+    .btn-outline {
+      background-color: var(--surface);
+      color: var(--foreground);
+    }
+
+    .btn-danger {
+      background-color: #EF4444;
+      color: #FFFFFF;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    .btn-danger:hover {
+      background-color: #DC2626;
+    }
+
+    /* 主容器 */
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* 標題與搜尋欄 */
+    .hero-banner {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .hero-title h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--foreground);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-title p {
+      font-size: 15px;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      background-color: var(--background);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-base);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 搜尋與過濾區 */
+    .controls-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-input {
+      flex: 1;
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: 3px 3px 0px var(--border-color);
+      padding: 12px 18px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--foreground);
+      outline: none;
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .search-input:focus {
+      background-color: #FEF3C7;
+      transform: translate(-1px, -1px);
+    }
+
+    /* 分類標籤區 */
+    .category-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tab-btn {
+      background-color: var(--surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: 3px 3px 0px var(--border-color);
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--foreground);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .tab-btn:hover {
+      transform: translate(-2px, -2px);
+    }
+
+    .tab-btn:active {
+      transform: scale(0.96);
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 4px 4px 0px var(--border-color);
+    }
+
+    .tab-count {
+      background-color: var(--border-color);
+      color: var(--surface);
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .tab-btn.active .tab-count {
+      background-color: #FFFFFF;
+      color: var(--foreground);
+    }
+
+    /* 影片網格佈局 */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 28px;
+    }
+
+    /* Neubrutalism 影片卡片 */
+    .video-card {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .video-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0px var(--border-color);
+    }
+
+    /* 卡片封面區域 (同心圓角公式: 外部圓角 6px，內部頂端貼合) */
+    .card-media {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background-color: #1E293B;
+      border-bottom: var(--border-width) solid var(--border-color);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 200ms ease;
+    }
+
+    .video-card:hover .card-media img {
+      transform: scale(1.03);
+    }
+
+    .card-category-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background-color: var(--accent);
+      color: #FFFFFF;
+      font-family: var(--font-heading);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      box-shadow: 2px 2px 0px var(--border-color);
+      z-index: 2;
+    }
+
+    .card-duration-tag {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background-color: rgba(15, 23, 42, 0.9);
+      color: #FFFFFF;
+      font-family: var(--font-heading);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      z-index: 2;
+    }
+
+    .card-play-btn {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: 3px 3px 0px var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 3;
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .card-play-btn:hover {
+      transform: scale(1.1);
+      background-color: var(--accent);
+    }
+    .card-play-btn:hover svg {
+      fill: #FFFFFF;
+    }
+    .card-play-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--foreground);
+      margin-left: 3px;
+    }
+
+    /* 卡片內容區域 */
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .card-author-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .author-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .author-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-base);
+      border: 2px solid var(--border-color);
+      background-color: #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .author-names {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .author-name {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--foreground);
+      line-height: 1.2;
+    }
+
+    .author-handle {
+      font-size: 13px;
+      color: var(--primary);
+    }
+
+    .card-date {
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .card-text {
+      font-size: 14px;
+      color: var(--foreground);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 42px;
+      word-break: break-all;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .tag-chip {
+      background-color: var(--background);
+      color: var(--secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+    }
+
+    /* 卡片底部操作列 */
+    .card-footer {
+      padding: 14px 20px;
+      background-color: #F8FAFC;
+      border-top: var(--border-width) solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-link {
+      color: var(--foreground);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--surface);
+      box-shadow: 2px 2px 0px var(--border-color);
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .icon-link:hover {
+      transform: translate(-1px, -1px);
+      background-color: #FEF3C7;
+    }
+    .icon-link:active {
+      transform: scale(0.96);
+    }
+
+    /* 播放彈窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: 10px 10px 0px var(--border-color);
+      width: 100%;
+      max-width: 860px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: popIn 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      background-color: #FEF3C7;
+      border-bottom: var(--border-width) solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      background: var(--surface);
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      box-shadow: 2px 2px 0px var(--border-color);
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .modal-close-btn:hover {
+      transform: translate(-1px, -1px);
+      background-color: #EF4444;
+      color: #FFFFFF;
+    }
+
+    .modal-player-wrap {
+      background-color: #000000;
+      width: 100%;
+      height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-player-wrap video {
+      width: 100%;
+      height: 100%;
+      outline: none;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* 新增手動輸入 Modal */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .form-control {
+      background-color: var(--surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-base);
+      padding: 10px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+    }
+
+    /* 空狀態 */
+    .empty-state {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-base);
+      box-shadow: var(--shadow);
+      padding: 60px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      grid-column: 1 / -1;
+    }
+    .empty-state h3 {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .empty-state p {
+      color: var(--primary);
+      max-width: 480px;
+    }
+
+    /* 頁尾 */
+    footer {
+      background-color: var(--surface);
+      border-top: var(--border-width) solid var(--border-color);
+      padding: 24px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sync-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #DCFCE7;
+      color: #166534;
+      border: 2px solid #166534;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #22C55E;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    @media (max-width: 768px) {
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-title h1 {
+        font-size: 24px;
+      }
+      .modal-player-wrap {
+        height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導航列 -->
+  <header>
+    <div class="brand-wrap">
+      <a href="#" class="brand-logo">
+        <span>⚡ X管家</span>
+        <span class="brand-badge">PRO 云端版</span>
+      </a>
+    </div>
+    <div class="header-actions">
+      <a href="https://line.me/R/ti/p/@724xrewc" target="_blank" class="btn btn-primary">
+        <span>💬 LINE 官方帳號</span>
+      </a>
+      <button class="btn btn-outline" onclick="openAddModal()">
+        <span>➕ 手動貼入</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主內容區域 -->
+  <main>
+    <!-- 頂部資訊看板 -->
+    <section class="hero-banner">
+      <div class="hero-header">
+        <div class="hero-title">
+          <h1>⚡ X管家 ‧ 線上影音雲端展示中心</h1>
+          <p>全天候 24/7 獨立運作！只要在 LINE 傳送 X 影片連結，系統即刻解析、自動分類、雲端上架，支援隨時線上即時播放與一鍵刪除。</p>
+        </div>
+        <div class="stats-bar">
+          <div class="stat-pill">
+            <span>📹 總收藏影片：</span>
+            <strong id="total-count">0</strong>
+          </div>
+          <div class="stat-pill">
+            <span>🏷️ 智能分類：</span>
+            <strong id="category-count">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 搜尋與過濾 -->
+      <div class="controls-bar">
+        <div class="search-row">
+          <input type="text" id="search-input" class="search-input" placeholder="🔍 搜尋推文內容、作者名稱、@帳號、關鍵字或標籤..." oninput="handleSearch()">
+        </div>
+
+        <div class="category-tabs" id="category-tabs">
+          <!-- 分類標籤動態注入 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 影片卡片網格 -->
+    <section class="video-grid" id="video-grid">
+      <!-- 影片卡片動態渲染 -->
+    </section>
+  </main>
+
+  <!-- 播放 Modal -->
+  <div class="modal-overlay" id="player-modal" onclick="closePlayerModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-video-title">🎬 影片即時播放</h3>
+        <button class="modal-close-btn" onclick="closePlayerModal()">✕</button>
+      </div>
+      <div class="modal-player-wrap">
+        <video id="modal-video-element" controls autoplay playsinline preload="auto"></video>
+      </div>
+      <div class="modal-body">
+        <div class="card-author-row">
+          <div class="author-info">
+            <div class="author-avatar" id="modal-author-avatar">X</div>
+            <div class="author-names">
+              <span class="author-name" id="modal-author-name">作者</span>
+              <span class="author-handle" id="modal-author-handle">@handle</span>
+            </div>
+          </div>
+          <span class="card-date" id="modal-video-date">時間</span>
+        </div>
+        <p id="modal-video-text" style="font-size: 15px; line-height: 1.6;"></p>
+        <div class="card-tags" id="modal-video-tags"></div>
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+          <a id="modal-download-btn" href="#" target="_blank" class="btn btn-primary" download>
+            <span>⬇️ 下載 MP4 原檔</span>
+          </a>
+          <a id="modal-tweet-btn" href="#" target="_blank" class="btn btn-outline">
+            <span>🔗 查看原始 X 推文</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 手動新增 Modal -->
+  <div class="modal-overlay" id="add-modal" onclick="closeAddModal(event)">
+    <div class="modal-card" style="max-width: 520px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>➕ 手動貼入 X 影片網址</h3>
+        <button class="modal-close-btn" onclick="closeAddModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 14px; color: var(--primary);">直接貼上推文連結，或在手機 LINE 傳給 @724xrewc 機器人即可自動同步！</p>
+        <div class="form-group">
+          <label>X (Twitter) 貼文網址：</label>
+          <input type="text" id="manual-url-input" class="form-control" placeholder="https://x.com/.../status/123456789">
+        </div>
+        <button class="btn btn-primary" style="margin-top: 8px;" onclick="handleManualAdd()">
+          <span>⚡ 即刻解析並新增至看板</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 頁尾 -->
+  <footer>
+    <div class="sync-status">
+      <span class="sync-dot"></span>
+      <span>☁️ 雲端服務獨立運作中 ‧ 電腦關機亦不中斷</span>
+    </div>
+    <p>⚡ <strong>X管家</strong> ‧ 專屬個人影音雲端展示中心 | Neubrutalism Pop 設計風格</p>
+  </footer>
+
+  <script>
+    // 預設資料來源（優先讀取 localStorage，若無則讀取 data.json）
+    const STORAGE_KEY = 'X_BUTLER_VIDEOS_DATA';
+    let videos = [];
+    let currentCategory = '全部';
+    let searchQuery = '';
+
+    // 自動分類引擎
+    function detectCategory(text, author, handle) {
+      const full = (text + ' ' + author + ' ' + handle).toLowerCase();
+      if (/打屁股|spanking|處罰|惩处|sp|屁股|罚/.test(full)) return '調教懲處';
+      if (/小狗|主仆|主僕|主人|奴|服务|服侍|惩罚/.test(full)) return '主奴情趣';
+      if (/双头|雙頭|盲盒|开箱|開箱|玩具|情趣/.test(full)) return '情趣開箱';
+      if (/gangbang|chudai|多人|多人派对|多人派對|群交|群/.test(full)) return '多人派對';
+      if (/肌肉|帅哥|帥哥|男模|体格|壯|猛男/.test(full)) return '肌肉型男';
+      return '精選收錄';
+    }
+
+    // 智能標籤生成器
+    function extractTags(text, category) {
+      const tags = [category];
+      const matchTags = text.match(/#[\w\u4e00-\u9fa5]+/g);
+      if (matchTags) {
+        matchTags.forEach(t => tags.push(t.replace('#', '')));
+      }
+      return [...new Set(tags)].slice(0, 4);
+    }
+
+    // 初始化載入
+    async function init() {
+      const local = localStorage.getItem(STORAGE_KEY);
+      if (local) {
+        try {
+          videos = JSON.parse(local);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      if (!videos || videos.length === 0) {
+        try {
+          const res = await fetch('data.json');
+          if (res.ok) {
+            videos = await res.json();
+            saveVideos();
+          }
+        } catch (e) {
+          console.warn('無法載入 data.json:', e);
+        }
+      }
+
+      renderUI();
+    }
+
+    function saveVideos() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+    }
+
+    // 渲染分類與計數
+    function renderCategories() {
+      const categoryMap = { '全部': videos.length };
+      videos.forEach(v => {
+        const cat = v.category || '精選收錄';
+        categoryMap[cat] = (categoryMap[cat] || 0) + 1;
+      });
+
+      const tabsContainer = document.getElementById('category-tabs');
+      tabsContainer.innerHTML = '';
+
+      Object.keys(categoryMap).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `tab-btn ${currentCategory === cat ? 'active' : ''}`;
+        btn.innerHTML = `<span>${cat}</span><span class="tab-count">${categoryMap[cat]}</span>`;
+        btn.onclick = () => {
+          currentCategory = cat;
+          renderUI();
+        };
+        tabsContainer.appendChild(btn);
+      });
+
+      document.getElementById('total-count').textContent = videos.length;
+      document.getElementById('category-count').textContent = Object.keys(categoryMap).length - 1;
+    }
+
+    // 渲染卡片
+    function renderCards() {
+      const grid = document.getElementById('video-grid');
+      grid.innerHTML = '';
+
+      const filtered = videos.filter(v => {
+        const matchCategory = currentCategory === '全部' || v.category === currentCategory;
+        const q = searchQuery.toLowerCase().trim();
+        const matchSearch = !q || 
+          (v.text && v.text.toLowerCase().includes(q)) ||
+          (v.author && v.author.toLowerCase().includes(q)) ||
+          (v.handle && v.handle.toLowerCase().includes(q)) ||
+          (v.category && v.category.toLowerCase().includes(q)) ||
+          (v.tags && v.tags.some(t => t.toLowerCase().includes(q)));
+        return matchCategory && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <h3>📭 目前尚無符合的影片</h3>
+            <p>您可以透過上方「➕ 手動貼入」或是直接打開 LINE 將推文連結傳送給 <strong>【X管家】</strong>，影片將會自動在此呈現！</p>
+            <button class="btn btn-primary" onclick="currentCategory='全部'; searchQuery=''; document.getElementById('search-input').value=''; renderUI();">
+              <span>重設過濾條件</span>
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(v => {
+        const card = document.createElement('article');
+        card.className = 'video-card';
+
+        const posterSrc = v.poster || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+        const formattedDate = v.addedAt ? new Date(v.addedAt).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' }) : '最新';
+        const durationText = v.duration ? `${Math.floor(v.duration / 60)}:${String(v.duration % 60).padStart(2, '0')}` : 'HD';
+
+        const tagsHtml = (v.tags || [v.category || '精選']).map(t => `<span class="tag-chip">#${t}</span>`).join('');
+
+        card.innerHTML = `
+          <div class="card-media">
+            <span class="card-category-tag">${v.category || '精選'}</span>
+            <span class="card-duration-tag">⏱️ ${durationText}</span>
+            <img src="${posterSrc}" alt="${v.author || '影片封面'}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'">
+            <div class="card-play-btn" onclick="openPlayer('${v.id}')" title="即時播放">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-author-row">
+              <div class="author-info">
+                <div class="author-avatar">${(v.author || 'X')[0].toUpperCase()}</div>
+                <div class="author-names">
+                  <span class="author-name">${v.author || 'X 用戶'}</span>
+                  <span class="author-handle">@${v.handle || ''}</span>
+                </div>
+              </div>
+              <span class="card-date">${formattedDate}</span>
+            </div>
+            <p class="card-text">${v.text || '無推文文字內容'}</p>
+            <div class="card-tags">
+              ${tagsHtml}
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="footer-links">
+              <a href="${v.tweetUrl || '#'}" target="_blank" class="icon-link" title="前往推特查看">
+                <span>🔗 原文</span>
+              </a>
+              <a href="${v.videoUrl || '#'}" target="_blank" class="icon-link" download title="下載原檔">
+                <span>⬇️ 下載</span>
+              </a>
+            </div>
+            <button class="btn btn-danger" onclick="deleteVideo('${v.id}')" title="從展示中心移除此影片">
+              <span>🗑️ 刪除</span>
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function renderUI() {
+      renderCategories();
+      renderCards();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('search-input').value;
+      renderCards();
+    }
+
+    // 播放器彈窗控制
+    function openPlayer(videoId) {
+      const v = videos.find(item => item.id === videoId);
+      if (!v) return;
+
+      document.getElementById('modal-video-title').textContent = `🎬 ${v.author} 的影音`;
+      document.getElementById('modal-author-avatar').textContent = (v.author || 'X')[0].toUpperCase();
+      document.getElementById('modal-author-name').textContent = v.author || 'X 用戶';
+      document.getElementById('modal-author-handle').textContent = `@${v.handle || ''}`;
+      document.getElementById('modal-video-date').textContent = v.addedAt ? new Date(v.addedAt).toLocaleString('zh-TW') : '';
+      document.getElementById('modal-video-text').textContent = v.text || '';
+      document.getElementById('modal-download-btn').href = v.videoUrl || '#';
+      document.getElementById('modal-tweet-btn').href = v.tweetUrl || '#';
+
+      const tagsContainer = document.getElementById('modal-video-tags');
+      tagsContainer.innerHTML = (v.tags || [v.category]).map(t => `<span class="tag-chip">#${t}</span>`).join('');
+
+      const videoElem = document.getElementById('modal-video-element');
+      videoElem.src = v.videoUrl;
+      videoElem.poster = v.poster || '';
+      videoElem.load();
+      videoElem.play().catch(e => console.log('Autoplay prevented:', e));
+
+      document.getElementById('player-modal').classList.add('active');
+    }
+
+    function closePlayerModal(e) {
+      const modal = document.getElementById('player-modal');
+      modal.classList.remove('active');
+      const videoElem = document.getElementById('modal-video-element');
+      videoElem.pause();
+      videoElem.src = '';
+    }
+
+    // 刪除影片功能
+    function deleteVideo(videoId) {
+      if (confirm('確定要從展示中心刪除這部影片嗎？')) {
+        videos = videos.filter(v => v.id !== videoId);
+        saveVideos();
+        renderUI();
+      }
+    }
+
+    // 手動新增 Modal 控制
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+      document.getElementById('manual-url-input').focus();
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('active');
+      document.getElementById('manual-url-input').value = '';
+    }
+
+    async function handleManualAdd() {
+      const input = document.getElementById('manual-url-input').value.trim();
+      if (!input) {
+        alert('請輸入有效的 X 影片網址！');
+        return;
+      }
+
+      const match = input.match(/status\/(\d+)/i);
+      if (!match) {
+        alert('無效的推文網址，需包含 status/數字！');
+        return;
+      }
+
+      const tweetId = match[1];
+      const btn = event.target.closest('button');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ 穿透解析中...</span>';
+
+      try {
+        // 使用 FxTwitter 公開穿透 API
+        const res = await fetch(`https://api.fxtwitter.com/status/${tweetId}`);
+        if (!res.ok) throw new Error('解析服務未回應');
+        const data = await res.json();
+        const tweet = data.tweet;
+
+        if (!tweet || !tweet.media || !tweet.media.videos || tweet.media.videos.length === 0) {
+          alert('該推文未包含影片串流或已被作者刪除！');
+          return;
+        }
+
+        const video = tweet.media.videos[0];
+        const author = tweet.author?.name || 'X 用戶';
+        const handle = tweet.author?.screen_name || '';
+        const text = tweet.text || '';
+        const category = detectCategory(text, author, handle);
+        const tags = extractTags(text, category);
+
+        const newEntry = {
+          id: tweetId,
+          tweetUrl: input,
+          author: author,
+          handle: handle,
+          text: text,
+          category: category,
+          tags: tags,
+          videoUrl: video.url,
+          poster: video.thumbnail_url || '',
+          duration: video.duration ? Math.round(video.duration) : null,
+          isSensitive: tweet.possibly_sensitive || false,
+          addedAt: new Date().toISOString()
+        };
+
+        // 避免重複
+        videos = [newEntry, ...videos.filter(v => v.id !== tweetId)];
+        saveVideos();
+        closeAddModal();
+        currentCategory = '全部';
+        renderUI();
+        alert('🎉 影片解析成功！已自動分類並上架至展示中心！');
+
+      } catch (err) {
+        alert(`❌ 解析失敗：${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>⚡ 即刻解析並新增至看板</span>';
+      }
+    }
+
+    // 啟動
+    init();
+  </script>
+</body>
+</html>
